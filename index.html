@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%238005D8%22/%3E%3Cpath d=%22M9 16.5l4.5 4.5L23 11.5%22 stroke=%22white%22 stroke-width=%223%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Saravana Q4 Meeting - Actions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: brand header band, sticky summary + filter bar, then one card per theme with action rows (text | status + comments). */
+:root{
+  --bg:#F7F6FB; --surface:#FFFFFF; --surface-2:#F2F0F8; --fg:#1C1830; --muted:#6B6680; --line:#E6E3EF;
+  --brand:#8005D8; --brand-soft:#F1E6FC; --brand-fg:#FFFFFF;
+  --ns:#6B6680; --ns-bg:#EFEEF3; --ip:#9A5B00; --ip-bg:#FFF1D9; --done:#0E7A43; --done-bg:#DDF5E7;
+  --danger:#C0303A;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#13111A; --surface:#1C1926; --surface-2:#242031; --fg:#ECEAF2; --muted:#A19CB2; --line:#2E2A3B;
+  --brand:#B47CFF; --brand-soft:#2C2142; --brand-fg:#15101F;
+  --ns:#B3AEC2; --ns-bg:#2A2736; --ip:#F2B24C; --ip-bg:#3A2C12; --done:#4FD08C; --done-bg:#163525;
+  --danger:#FF7A83; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#13111A; --surface:#1C1926; --surface-2:#242031; --fg:#ECEAF2; --muted:#A19CB2; --line:#2E2A3B;
+  --brand:#B47CFF; --brand-soft:#2C2142; --brand-fg:#15101F;
+  --ns:#B3AEC2; --ns-bg:#2A2736; --ip:#F2B24C; --ip-bg:#3A2C12; --done:#4FD08C; --done-bg:#163525;
+  --danger:#FF7A83; color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:14px;line-height:1.5}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+header.top{background:var(--surface);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:14px;flex-wrap:wrap}
+.logo{color:var(--brand);height:22px;width:auto;display:block}
+.who{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+.who img{width:24px;height:24px;border-radius:50%}
+.hero .wrap{padding-block:28px 8px;display:grid;gap:6px}
+.eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--brand)}
+h1{font-size:clamp(22px,3.4vw,30px);line-height:1.2;margin:0;font-weight:700;text-wrap:balance}
+.sub{color:var(--muted);margin:0;max-width:65ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .wrap{padding-block:12px;display:grid;gap:10px}
+.progress{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--ns-bg)}
+.progress span{display:block;height:100%;transition:width .3s}
+.progress .p-done{background:var(--done)} .progress .p-ip{background:var(--ip)}
+.bar-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.filters{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:13px;font-weight:500;border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:5px 12px;border-radius:99px;cursor:pointer;display:inline-flex;gap:6px;align-items:center}
+.chip b{font-variant-numeric:tabular-nums;font-weight:600;color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:var(--brand-fg)}
+.chip[aria-pressed="true"] b{color:inherit}
+.chip:focus-visible,.seg button:focus-visible,.btn:focus-visible,textarea:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.note{font-size:12.5px;color:var(--muted)}
+.note.warn{color:var(--danger)}
+main .wrap{padding-block:20px 48px;display:grid;gap:20px}
+section.theme{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.theme-head{display:flex;gap:12px;align-items:baseline;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.theme-head h2{margin:0;font-size:17px;font-weight:600;display:flex;gap:10px;align-items:baseline}
+.theme-head h2 .num{color:var(--brand);font-variant-numeric:tabular-nums}
+.theme-count{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
+.item{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,340px);gap:12px 24px;padding:16px 20px;border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.item.is-action{background:var(--brand-soft);grid-template-columns:minmax(0,1fr)}
+.item.is-action p{font-weight:500}
+.item-text{min-width:0}
+.item-text p{margin:0}
+.tag{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--brand);margin-bottom:4px}
+.item-text a{color:var(--brand);font-weight:500}
+.side{display:grid;gap:8px;min-width:0;align-content:start}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.seg button{font:inherit;font-size:12.5px;font-weight:500;border:0;border-left:1px solid var(--line);background:transparent;color:var(--muted);padding:7px 4px;cursor:pointer;white-space:nowrap}
+.seg button:first-child{border-left:0}
+.seg button:hover:not(:disabled){background:var(--surface-2)}
+.seg button[aria-pressed="true"][data-s="Not started"]{background:var(--ns-bg);color:var(--ns);font-weight:600}
+.seg button[aria-pressed="true"][data-s="In-progress"]{background:var(--ip-bg);color:var(--ip);font-weight:600}
+.seg button[aria-pressed="true"][data-s="Completed"]{background:var(--done-bg);color:var(--done);font-weight:600}
+.seg button:disabled{cursor:default}
+.meta{font-size:12px;color:var(--muted);min-height:1em}
+.comments{display:grid;gap:6px}
+.cmt{background:var(--surface-2);border-radius:8px;padding:8px 10px;font-size:13px}
+.cmt-head{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;color:var(--muted);margin-bottom:2px}
+.cmt-head strong{color:var(--fg);font-weight:600}
+.cmt-body{white-space:pre-wrap;overflow-wrap:anywhere}
+.cmt-body a{color:var(--brand)}
+.linkbtn{font:inherit;font-size:11.5px;border:0;background:none;color:var(--muted);cursor:pointer;padding:0;text-decoration:underline}
+.compose{display:grid;gap:6px}
+textarea{font:inherit;font-size:13px;width:100%;min-height:58px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--fg)}
+textarea::placeholder{color:var(--muted)}
+.compose-row{display:flex;justify-content:flex-end;gap:8px;align-items:center}
+.btn{font:inherit;font-size:12.5px;font-weight:600;border:0;border-radius:6px;padding:6px 14px;background:var(--brand);color:var(--brand-fg);cursor:pointer}
+.btn:disabled{opacity:.45;cursor:default}
+.empty{padding:28px 20px;color:var(--muted);text-align:center;display:none}
+select{font:inherit;font-size:13px;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:5px 8px;cursor:pointer}
+select:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+.who select{font-weight:500}
+.owner{display:flex;align-items:center;gap:8px}
+.owner-label{font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);min-width:48px}
+.owner select{flex:1;min-width:0;font-weight:500}
+.owner select.unassigned{color:var(--muted);font-weight:400}
+.bar-right{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.ofilter{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.hint{font-size:12px;color:var(--muted);margin-right:auto}
+footer .wrap{padding-block:0 32px;color:var(--muted);font-size:12px}
+@media (max-width:720px){.item{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.progress span{transition:none}}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <svg class="logo" role="img" aria-label="Document360" viewBox="0 0 270 35" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M231.19,18.46a10.62,10.62,0,0,0-2.36-3.610,10.850,10.850,0,0,0-3.530-2.470,10.390,10.390,0,0,0-4.480-1c-.54,0-1,0-1.45.06l5.4-9.67h-5.31l-8.88,15.62a10.56,10.56,0,0,0-1.43,5.25,10.85,10.85,0,0,0,1.77,6.14,11.81,11.81,0,0,0,4.38,4.08,11.23,11.23,0,0,0,5.41,1.45,10.83,10.83,0,0,0,5.63-1.6,12.3,12.3,0,0,0,4.17-4.22,11.32,11.32,0,0,0,.68-10Zm-3.86,4.29a6.62,6.62,0,0,1-.89,3.38A6.440,6.440,0,0,1,224,28.51a6.56,6.56,0,0,1-3.35.9A6.570,6.570,0,0,1,214.91,26a6.65,6.65,0,0,1-.89-3.36,6.36,6.36,0,0,1,.92-3.25A6.69,6.69,0,0,1,217.37,17,6.34,6.34,0,0,1,224,17a6.7,6.7,0,0,1,2.46,2.47A6.46,6.46,0,0,1,227.33,22.75Z"/><path d="M265.82,11c-.12-.3-.27-.63-.43-1a6,6,0,0,1-.93,1.28,5.65,5.65,0,0,1-3,1.57,11.24,11.24,0,0,1,.87,4.42,12,12,0,0,1-.9,4.55,11.73,11.73,0,0,1-2.61,3.95,11.33,11.33,0,0,1-3.85,2.52,12.18,12.18,0,0,1-4.52.85,11.69,11.69,0,0,1-11.32-8.78,11.63,11.63,0,0,1,.08-6.14,11.62,11.62,0,0,1,3.09-5.35,11.31,11.31,0,0,1,3.88-2.54,12.67,12.67,0,0,1,4.43-.89,11.9,11.9,0,0,1,4.23.82,5.59,5.59,0,0,1,1.58-3.07,5.87,5.87,0,0,1,1.22-.91c-.27-.13-.55-.27-.82-.38A16.71,16.71,0,0,0,250.51.72h0a16.330,16.330,0,0,0-11.69,4.82,16.67,16.67,0,0,0-4.39,7.52,17.2,17.2,0,0,0-.06,8.55,16.4,16.4,0,0,0,11.76,11.82,16.74,16.74,0,0,0,4.15.52,17.35,17.35,0,0,0,4.44-.58,16.72,16.72,0,0,0,11.11-9.84,16.83,16.83,0,0,0,1.24-6.26A16.21,16.21,0,0,0,265.82,11Z"/><path d="M206.27,19.63h0a11.92,11.92,0,0,0-1.46-3.13,12.23,12.23,0,0,0-2.4-2.56l-.15-.09a14,14,0,0,0-2.32-1.44L206,1.86H188.29V6.62h9.49l-4.91,8.51,3,.79a9.91,9.91,0,0,1,3.9,2.07,1.64,1.64,0,0,0,.22.25,6.61,6.61,0,0,1,1.37,2,6.35,6.35,0,0,1,.54,2.52,6.54,6.54,0,0,1-.92,3.46,6.31,6.31,0,0,1-2.39,2.47,6.51,6.51,0,0,1-6.58,0,6.86,6.86,0,0,1-2.48-2.45,6.27,6.27,0,0,1-.92-3.32V21.36h-4.82v1.58a11.63,11.63,0,0,0,5.73,10,11.44,11.44,0,0,0,11.5,0,11.43,11.43,0,0,0,4.19-4.15A11.2,11.2,0,0,0,206.78,23,11.9,11.9,0,0,0,206.27,19.63Z"/><path d="M260.41,4.24a3,3,0,0,0-2.11.88,3,3,0,1,0,2.110-.88Z"/><path d="M2.06,1.74h9.4c6.77,0,11.41,4.08,11.41,10.35S18.23,22.43,11.46,22.43H2.06ZM11.23,18.5c4.1,0,6.79-2.45,6.79-6.41s-2.69-6.42-6.79-6.42H6.85V18.5Z"/><path d="M25.18,12.09c0-6.15,4.79-10.7,11.32-10.7s11.32,4.52,11.32,10.7S43,22.79,36.5,22.79,25.18,18.23,25.18,12.09Zm17.79,0a6.47,6.47,0,1,0-12.94,0,6.47,6.47,0,1,0,12.94,0Z"/><path d="M50.13,12.09c0-6.24,4.79-10.7,11.23-10.7a10.68,10.68,0,0,1,8.51,3.66L66.8,7.89a6.66,6.66,0,0,0-5.2-2.43A6.35,6.35,0,0,0,55,12.09a6.35,6.35,0,0,0,6.63,6.62,6.6,6.6,0,0,0,5.2-2.46l3.07,2.84a10.61,10.61,0,0,1-8.54,3.7C54.92,22.79,50.13,18.32,50.13,12.09Z"/><path d="M72.74,13.33V1.74h4.79V13.15c0,3.93,1.71,5.56,4.61,5.56s4.61-1.63,4.61-5.56V1.74h4.73V13.33c0,6.09-3.49,9.46-9.37,9.46S72.74,19.42,72.74,13.33Z"/><path d="M115,22.43,115,10l-6.09,10.22h-2.16l-6.06-10V22.43H96.21V1.74h4l7.75,12.86,7.62-12.86h3.93l.06,20.69Z"/><path d="M140.46,18.59v3.840h-16V1.74h15.64V5.58H129.2v4.5h9.61V13.8H129.2v4.79Z"/><path d="M163.25,1.74V22.43h-3.93L149,9.870V22.43h-4.72V1.74h4L158.52,14.3V1.74Z"/><path d="M172.45,5.64h-6.62V1.74h18v3.9h-6.63V22.43h-4.78Z"/></svg>
+    <label class="who" for="me"><span>Commenting as</span><select id="me"><option value="">Choose your name</option></select></label>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Marketing · Q4 2026 leadership review</div>
+    <h1>Saravana Q4 Meeting - Actions</h1>
+    <p class="sub">Pick an owner, set the status of each activity and add a comment with your update. Changes save automatically and everyone with this link sees them.</p>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="wrap">
+    <div class="progress" aria-hidden="true"><span class="p-done" id="pDone" style="width:0"></span><span class="p-ip" id="pIp" style="width:0"></span></div>
+    <div class="bar-row">
+      <div class="filters" role="group" aria-label="Filter by status">
+        <button class="chip" id="f-all" data-f="all" aria-pressed="true">All <b id="c-all">0</b></button>
+        <button class="chip" id="f-ns" data-f="Not started" aria-pressed="false">Not started <b id="c-ns">0</b></button>
+        <button class="chip" id="f-ip" data-f="In-progress" aria-pressed="false">In-progress <b id="c-ip">0</b></button>
+        <button class="chip" id="f-done" data-f="Completed" aria-pressed="false">Completed <b id="c-done">0</b></button>
+      </div>
+      <div class="bar-right"><label class="ofilter" for="ownerFilter">Owner <select id="ownerFilter"><option value="all">Everyone</option></select></label><span class="note" id="syncNote">Connecting to the shared tracker…</span></div>
+    </div>
+  </div>
+</div>
+
+<main><div class="wrap" id="list"></div><div class="wrap"><div class="empty" id="empty">No activities match this filter.</div></div></main>
+<footer><div class="wrap">Activities without a saved status show as Not started. Action lines summarise each theme and aren't tracked.</div></footer>
+
+<script>
+const STATUSES = ["Not started","In-progress","Completed"];
+const OWNERS = ["Iyyapan","Surya","Jubina","Akash"];
+const DATA = [
+ {n:1,title:"AI Transformation & Centralized Marketing Brain",items:[
+  "Build a centralized repository containing all marketing activities, campaigns, assets, reports, and performance data.",
+  "Integrate Claude with this repository to create a unified AI-powered marketing knowledge base.",
+  "Explore GitHub or other suitable platforms for storing and managing marketing context.",
+  "Develop a centralized internal marketing application to access dashboards, automations, and intelligence tools.",
+  "Involve engineering during the initial setup.",
+  {a:"Prioritize the centralized marketing brain as a major Q4/Q1 initiative."}]},
+ {n:2,title:"Influencer Marketing & Relationship Building",items:[
+  "Identify the top 10–20 influential voices across technical writing, product management, and other relevant ICP communities.",
+  "Encourage influencers to become organic brand advocates, webinar speakers, and event participants.",
+  "Leverage the existing network of 250+ influencers for relevant marketing initiatives.",
+  {a:"Develop a targeted influencer relationship strategy focused on high-value ICPs."}]},
+ {n:4,title:"US Market Expansion & Competitive Positioning",items:[
+  "Leadership identified the US market as an important growth opportunity.",
+  "Explore participation in US industry conferences, smaller events, and company-hosted events.",
+  "Monitor competitor positioning, marketing activities, executive communications, hiring, and events.",
+  "Operate with the competitiveness and growth mindset of well-funded SaaS companies.",
+  {a:"Build a focused US market expansion and competitive intelligence plan."}]},
+ {n:5,title:"Product Marketing & Feature Adoption",items:[
+  "Leadership identified a gap between external product launches and existing-customer feature adoption.",
+  "Product marketing activities should go beyond landing pages, newsletters, and release videos.",
+  "Introduce targeted campaigns encouraging existing customers to adopt important new features.",
+  "Collaborate with Customer Success and relevant product teams on in-app messaging, email sequences, and targeted campaigns.",
+  "Avoid overwhelming customers with communications for every minor feature.",
+  {a:"Propose a quarterly or monthly feature-adoption campaign plan with measurable outcomes."}]},
+ {n:6,title:"Website Messaging & Conversion Optimization",items:[
+  "Leadership highlighted inconsistencies in messaging between the homepage, pricing page, and demo page.",
+  "Maintain consistent terminology and positioning for core use cases across the customer journey.",
+  "Ensure that users selecting a use case can continue through a relevant signup or demo experience.",
+  {a:"Audit and align website messaging, use cases, and conversion journeys."}]},
+ {n:7,title:"AI-Powered Paid Advertising",items:[
+  "Move beyond AI-assisted ad copy optimization toward increasingly automated campaign management.",
+  "Explore testing 50 or more ad variations to identify high-performing creatives and messaging.",
+  "Use Claude to analyze CTR, conversion rates, campaign performance, and optimization opportunities.",
+  "Reduce dependency on manual campaign adjustments where reliable automation is possible.",
+  {a:"Develop a scalable AI-driven advertising experimentation and optimization process."}]},
+ {n:8,title:"Competitive Intelligence & Centralized Tools",items:[
+  "Expand competitor monitoring beyond keywords and brand mentions.",
+  "Track competitor product launches, founders' discussions, marketing activities, hiring, partnerships, and events.",
+  "Convert collected information into actionable insights about competitor strategies.",
+  "Avoid building disconnected applications across individual team members' machines.",
+  {a:"Bring competitive intelligence and other marketing tools into a centralized, secure application."}]},
+ {n:9,title:"Customer Stories, Branding & Industry Presence",items:[
+  "Strengthen brand credibility through recognizable customer logos, testimonials, and case studies.",
+  "Improve how customer success stories communicate measurable business outcomes.",
+  "Continue building strategic relationships with relevant industry publications such as KMWorld.",
+  "Explore industry events and partnerships that reach decision-makers within the target ICP.",
+  {a:"Strengthen customer proof, industry recognition, and strategic partnerships as part of brand-building efforts."}]},
+ {n:10,title:"Social Media & Content Strategy",items:[
+  "Leadership highlighted the positive impact of consistent LinkedIn posting, citing approximately 1.5 million impressions over a month.",
+  "Maintain consistent publishing activity across relevant social platforms.",
+  "Continue expanding technical and departmental content to demonstrate the company's expertise.",
+  "Improve the visibility and discoverability of existing content assets.",
+  {a:"Maintain publishing consistency and develop content that reinforces brand authority."}]}
+];
+const ITEMS = [];
+DATA.forEach(t => t.items.forEach((it, i) => {
+  const isA = typeof it === "object";
+  ITEMS.push({id:`s${t.n}-${i+1}`, theme:t.n, text:isA?it.a:it, action:isA});
+}));
+const TRACKED = ITEMS.filter(i => !i.action);
+
+const state = {status:{}, owner:{}, notes:[], filter:"all", ownerFilter:"all", loaded:false, busy:0};
+const rows = {};
+const $ = id => document.getElementById(id);
+const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+const myNotes = new Set(JSON.parse(store.get("q4-my-notes") || "[]"));
+
+function linkify(container, text){
+  const re = /(https?:\/\/[^\s]+)/g; let last = 0, m;
+  while ((m = re.exec(text))){
+    if (m.index > last) container.append(text.slice(last, m.index));
+    const a = el("a", null, "Reference link"); a.href = m[1]; a.target = "_blank"; a.rel = "noopener"; a.title = m[1];
+    container.append(a); last = m.index + m[1].length;
+  }
+  if (last < text.length) container.append(text.slice(last));
+}
+function fmt(iso){ try { return new Date(iso).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); } catch(e){ return ""; } }
+function note(msg, warn){ const n = $("syncNote"); n.textContent = msg; n.classList.toggle("warn", !!warn); }
+const myName = () => $("me").value;
+
+function build(){
+  const meSel = $("me");
+  OWNERS.forEach(o => meSel.append(new Option(o, o)));
+  meSel.value = store.get("q4-my-name") || "";
+  meSel.addEventListener("change", () => { store.set("q4-my-name", meSel.value); render(); });
+  const of = $("ownerFilter");
+  OWNERS.forEach(o => of.append(new Option(o, o)));
+  of.append(new Option("Unassigned", ""));
+  of.addEventListener("change", () => { state.ownerFilter = of.value === "all" ? "all" : of.value; applyFilter(); });
+
+  const list = $("list");
+  DATA.forEach(t => {
+    const sec = el("section","theme"); sec.dataset.theme = t.n;
+    const head = el("div","theme-head");
+    const h2 = el("h2"); h2.append(el("span","num", t.n + "."), el("span", null, t.title));
+    const cnt = el("span","theme-count"); cnt.id = "tc-" + t.n;
+    head.append(h2, cnt); sec.append(head);
+    ITEMS.filter(i => i.theme === t.n).forEach(it => {
+      const row = el("div","item" + (it.action ? " is-action" : "")); row.id = "row-" + it.id;
+      const txt = el("div","item-text");
+      if (it.action){
+        txt.append(el("div","tag","Action"), el("p", null, it.text));
+        row.append(txt); sec.append(row); return;
+      }
+      txt.append(el("p", null, it.text));
+      const side = el("div","side");
+
+      const ownerWrap = el("label","owner");
+      ownerWrap.append(el("span","owner-label","Owner"));
+      const sel = el("select"); sel.id = "ow-" + it.id;
+      sel.append(new Option("Unassigned", ""));
+      OWNERS.forEach(o => sel.append(new Option(o, o)));
+      sel.addEventListener("change", () => send({op:"owner", id:it.id, owner:sel.value}, () => { state.owner[it.id] = sel.value; }));
+      ownerWrap.append(sel);
+
+      const seg = el("div","seg"); seg.setAttribute("role","group"); seg.setAttribute("aria-label","Status");
+      const btns = STATUSES.map((s, k) => {
+        const b = el("button", null, s); b.type = "button"; b.dataset.s = s; b.id = `st-${it.id}-${k}`;
+        b.addEventListener("click", () => { if (statusOf(it.id) !== s) send({op:"status", id:it.id, status:s}, () => { state.status[it.id] = s; }); });
+        seg.append(b); return b;
+      });
+      const comments = el("div","comments");
+      const compose = el("div","compose");
+      const ta = el("textarea"); ta.id = "cm-" + it.id; ta.placeholder = "Add a comment or update…"; ta.rows = 2;
+      ta.setAttribute("aria-label","Comment on: " + it.text);
+      const crow = el("div","compose-row");
+      const hint = el("span","hint");
+      const post = el("button","btn","Add comment"); post.type = "button"; post.disabled = true;
+      const sync = () => { post.disabled = !ta.value.trim() || !myName(); hint.textContent = ta.value.trim() && !myName() ? "Choose your name at the top first" : ""; };
+      ta.addEventListener("input", sync);
+      ta.addEventListener("keydown", e => { if ((e.ctrlKey||e.metaKey) && e.key === "Enter" && !post.disabled) post.click(); });
+      post.addEventListener("click", async () => {
+        const text = ta.value.trim(); if (!text || !myName()) return;
+        post.disabled = true;
+        const before = new Set(state.notes.map(n => n.id));
+        const ok = await send({op:"note", item:it.id, text, author:myName()});
+        if (ok){
+          state.notes.forEach(n => { if (!before.has(n.id) && n.item === it.id && n.text === text) myNotes.add(n.id); });
+          store.set("q4-my-notes", JSON.stringify([...myNotes]));
+          ta.value = ""; render();
+        }
+        sync();
+      });
+      crow.append(hint, post); compose.append(ta, crow);
+      side.append(ownerWrap, seg, comments, compose);
+      row.append(txt, side); sec.append(row);
+      rows[it.id] = {row, btns, sel, comments, ta, post, sync};
+    });
+    list.append(sec);
+  });
+  document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => {
+    state.filter = c.dataset.f;
+    document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", String(x === c)));
+    applyFilter();
+  }));
+}
+
+const statusOf = id => STATUSES.includes(state.status[id]) ? state.status[id] : "Not started";
+const ownerOf = id => OWNERS.includes(state.owner[id]) ? state.owner[id] : "";
+
+function render(){
+  TRACKED.forEach(it => {
+    const r = rows[it.id], s = statusOf(it.id), o = ownerOf(it.id);
+    r.btns.forEach(b => b.setAttribute("aria-pressed", String(b.dataset.s === s)));
+    r.row.dataset.status = s; r.row.dataset.owner = o;
+    if (document.activeElement !== r.sel) r.sel.value = o;
+    r.sel.classList.toggle("unassigned", !o);
+    const mine = state.notes.filter(n => n.item === it.id).sort((a,b) => (a.at||"").localeCompare(b.at||""));
+    r.comments.replaceChildren(...mine.map(n => {
+      const c = el("div","cmt");
+      const h = el("div","cmt-head");
+      const left = el("span"); left.append(el("strong", null, n.author || "Teammate"), " · " + fmt(n.at));
+      h.append(left);
+      if (myNotes.has(n.id)){
+        const del = el("button","linkbtn","Delete"); del.type = "button";
+        del.addEventListener("click", async () => { del.disabled = true; if (await send({op:"deleteNote", id:n.id})){ myNotes.delete(n.id); store.set("q4-my-notes", JSON.stringify([...myNotes])); } else del.disabled = false; });
+        h.append(del);
+      }
+      const body = el("div","cmt-body"); linkify(body, n.text || "");
+      c.append(h, body); return c;
+    }));
+    r.sync();
+  });
+  const c = {"Not started":0,"In-progress":0,"Completed":0};
+  TRACKED.forEach(it => c[statusOf(it.id)]++);
+  const total = TRACKED.length;
+  $("c-all").textContent = total; $("c-ns").textContent = c["Not started"]; $("c-ip").textContent = c["In-progress"]; $("c-done").textContent = c["Completed"];
+  $("pDone").style.width = (c["Completed"]/total*100) + "%"; $("pIp").style.width = (c["In-progress"]/total*100) + "%";
+  DATA.forEach(t => {
+    const its = TRACKED.filter(i => i.theme === t.n);
+    $("tc-" + t.n).textContent = `${its.filter(i => statusOf(i.id)==="Completed").length} of ${its.length} completed · ${its.filter(i => statusOf(i.id)==="In-progress").length} in progress`;
+  });
+  applyFilter();
+}
+
+function applyFilter(){
+  let any = false;
+  document.querySelectorAll("section.theme").forEach(sec => {
+    let vis = 0;
+    sec.querySelectorAll(".item:not(.is-action)").forEach(r => {
+      const show = (state.filter === "all" || r.dataset.status === state.filter) && (state.ownerFilter === "all" || r.dataset.owner === state.ownerFilter);
+      r.hidden = !show; if (show) vis++;
+    });
+    sec.hidden = vis === 0; if (vis) any = true;
+  });
+  $("empty").style.display = any ? "none" : "block";
+}
+
+function apply(data){
+  state.status = data.status || {}; state.owner = data.owner || {}; state.notes = data.notes || [];
+}
+
+// Send a change; optimistic local update first, then adopt the server's full state.
+async function send(body, optimistic){
+  state.busy++;
+  if (optimistic){ optimistic(); render(); }
+  try {
+    const r = await fetch("/api/state", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || "Save failed");
+    apply(data); render(); note("All changes saved · " + new Date().toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"}));
+    return true;
+  } catch(e){
+    note((e && e.message) || "Couldn't save that change. Check your connection and try again.", true);
+    await load(); return false;
+  } finally { state.busy--; }
+}
+
+async function load(){
+  try {
+    const r = await fetch("/api/state", {cache:"no-store"});
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.error || "Couldn't load the tracker");
+    if (state.busy) return;
+    apply(data); render();
+    if (!state.loaded){ state.loaded = true; note("Live · updates every few seconds"); }
+  } catch(e){ note((e && e.message) || "Can't reach the tracker right now. Retrying…", true); }
+}
+
+build(); render(); load();
+setInterval(() => { if (!document.hidden) load(); }, 6000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) load(); });
+</script>
+</body>
+</html>

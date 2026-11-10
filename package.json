@@ -1,0 +1,7 @@
+{
+  "name": "saravana-q4-2026-actions",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Shared tracker for the Saravana Q4 2026 marketing actions",
+  "engines": { "node": ">=18" }
+}
