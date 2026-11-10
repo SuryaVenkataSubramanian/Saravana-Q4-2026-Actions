@@ -234,13 +234,12 @@ function linkify(container, text){
 function fmt(iso){ try { return new Date(iso).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); } catch(e){ return ""; } }
 function note(msg, warn){ const n = $("syncNote"); n.textContent = msg; n.classList.toggle("warn", !!warn); }
 const myName = () => $("me").value;
-function setMyName(v){ $("me").value = v; store.set("q4-my-name", v); render(); }
 
 function build(){
   const meSel = $("me");
   OWNERS.forEach(o => meSel.append(new Option(o, o)));
   meSel.value = store.get("q4-my-name") || "";
-  meSel.addEventListener("change", () => setMyName(meSel.value));
+  meSel.addEventListener("change", () => { store.set("q4-my-name", meSel.value); render(); });
   const of = $("ownerFilter");
   OWNERS.forEach(o => of.append(new Option(o, o)));
   of.append(new Option("Unassigned", ""));
@@ -287,22 +286,24 @@ function build(){
       const asSel = el("select"); asSel.setAttribute("aria-label","Your name");
       asSel.append(new Option("Your name", "")); OWNERS.forEach(o => asSel.append(new Option(o, o)));
       asSel.value = myName(); asWrap.append(asSel);
-      asSel.addEventListener("change", () => { asSel.classList.remove("need"); setMyName(asSel.value); });
+      let chosen = null; // null = follow the header default; otherwise this box keeps its own name
+      asSel.addEventListener("change", () => { chosen = asSel.value; asSel.classList.remove("need"); if (chosen) store.set("q4-my-name", chosen); sync(); });
+      const author = () => chosen === null ? myName() : chosen;
       const post = el("button","btn","Add comment"); post.type = "button"; post.disabled = true;
       let posting = false;
       const sync = () => {
         post.disabled = posting || !ta.value.trim();
-        if (document.activeElement !== asSel) asSel.value = myName();
-        if (myName()){ asSel.classList.remove("need"); if (hint.classList.contains("warn")){ hint.textContent = ""; hint.classList.remove("warn"); } }
+        if (chosen === null && document.activeElement !== asSel) asSel.value = myName();
+        if (author()){ asSel.classList.remove("need"); if (hint.classList.contains("warn")){ hint.textContent = ""; hint.classList.remove("warn"); } }
       };
       ta.addEventListener("input", sync);
       ta.addEventListener("keydown", e => { if ((e.ctrlKey||e.metaKey) && e.key === "Enter" && !post.disabled) post.click(); });
       post.addEventListener("click", async () => {
         const text = ta.value.trim(); if (!text) return;
-        if (!myName()){ hint.textContent = "Pick your name first →"; hint.classList.add("warn"); asSel.classList.add("need"); asSel.focus(); return; }
+        if (!author()){ hint.textContent = "Pick your name first →"; hint.classList.add("warn"); asSel.classList.add("need"); asSel.focus(); return; }
         posting = true; sync(); hint.textContent = "Saving…"; hint.classList.remove("warn");
         const before = new Set(state.notes.map(n => n.id));
-        const ok = await send({op:"note", item:it.id, text, author:myName()});
+        const ok = await send({op:"note", item:it.id, text, author:author()});
         posting = false; hint.textContent = "";
         if (ok){
           state.notes.forEach(n => { if (!before.has(n.id) && n.item === it.id && n.text === text) myNotes.add(n.id); });
