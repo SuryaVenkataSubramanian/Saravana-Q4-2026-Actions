@@ -90,7 +90,7 @@ section.theme{background:var(--surface);border:1px solid var(--line);border-radi
 .compose{display:grid;gap:6px}
 textarea{font:inherit;font-size:13px;width:100%;min-height:58px;resize:vertical;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--surface);color:var(--fg)}
 textarea::placeholder{color:var(--muted)}
-.compose-row{display:flex;justify-content:flex-end;gap:8px;align-items:center}
+.compose-row{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;align-items:center}
 .btn{font:inherit;font-size:12.5px;font-weight:600;border:0;border-radius:6px;padding:6px 14px;background:var(--brand);color:var(--brand-fg);cursor:pointer}
 .btn:disabled{opacity:.45;cursor:default}
 .empty{padding:28px 20px;color:var(--muted);text-align:center;display:none}
@@ -104,6 +104,10 @@ select:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 .bar-right{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
 .ofilter{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .hint{font-size:12px;color:var(--muted);margin-right:auto}
+.hint.warn{color:#C2410C;font-weight:500}
+.as{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted)}
+.as select{font-size:12.5px;padding:4px 6px}
+.as select.need{border-color:#C2410C;outline:2px solid rgba(194,65,12,.25)}
 footer .wrap{padding-block:0 32px;color:var(--muted);font-size:12px}
 @media (max-width:720px){.item{grid-template-columns:minmax(0,1fr)}}
 @media (prefers-reduced-motion:reduce){.progress span{transition:none}}
@@ -230,12 +234,13 @@ function linkify(container, text){
 function fmt(iso){ try { return new Date(iso).toLocaleString(undefined,{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"}); } catch(e){ return ""; } }
 function note(msg, warn){ const n = $("syncNote"); n.textContent = msg; n.classList.toggle("warn", !!warn); }
 const myName = () => $("me").value;
+function setMyName(v){ $("me").value = v; store.set("q4-my-name", v); render(); }
 
 function build(){
   const meSel = $("me");
   OWNERS.forEach(o => meSel.append(new Option(o, o)));
   meSel.value = store.get("q4-my-name") || "";
-  meSel.addEventListener("change", () => { store.set("q4-my-name", meSel.value); render(); });
+  meSel.addEventListener("change", () => setMyName(meSel.value));
   const of = $("ownerFilter");
   OWNERS.forEach(o => of.append(new Option(o, o)));
   of.append(new Option("Unassigned", ""));
@@ -278,23 +283,35 @@ function build(){
       ta.setAttribute("aria-label","Comment on: " + it.text);
       const crow = el("div","compose-row");
       const hint = el("span","hint");
+      const asWrap = el("label","as"); asWrap.append(el("span", null, "as"));
+      const asSel = el("select"); asSel.setAttribute("aria-label","Your name");
+      asSel.append(new Option("Your name", "")); OWNERS.forEach(o => asSel.append(new Option(o, o)));
+      asSel.value = myName(); asWrap.append(asSel);
+      asSel.addEventListener("change", () => { asSel.classList.remove("need"); setMyName(asSel.value); });
       const post = el("button","btn","Add comment"); post.type = "button"; post.disabled = true;
-      const sync = () => { post.disabled = !ta.value.trim() || !myName(); hint.textContent = ta.value.trim() && !myName() ? "Choose your name at the top first" : ""; };
+      let posting = false;
+      const sync = () => {
+        post.disabled = posting || !ta.value.trim();
+        if (document.activeElement !== asSel) asSel.value = myName();
+        if (myName()){ asSel.classList.remove("need"); if (hint.classList.contains("warn")){ hint.textContent = ""; hint.classList.remove("warn"); } }
+      };
       ta.addEventListener("input", sync);
       ta.addEventListener("keydown", e => { if ((e.ctrlKey||e.metaKey) && e.key === "Enter" && !post.disabled) post.click(); });
       post.addEventListener("click", async () => {
-        const text = ta.value.trim(); if (!text || !myName()) return;
-        post.disabled = true;
+        const text = ta.value.trim(); if (!text) return;
+        if (!myName()){ hint.textContent = "Pick your name first →"; hint.classList.add("warn"); asSel.classList.add("need"); asSel.focus(); return; }
+        posting = true; sync(); hint.textContent = "Saving…"; hint.classList.remove("warn");
         const before = new Set(state.notes.map(n => n.id));
         const ok = await send({op:"note", item:it.id, text, author:myName()});
+        posting = false; hint.textContent = "";
         if (ok){
           state.notes.forEach(n => { if (!before.has(n.id) && n.item === it.id && n.text === text) myNotes.add(n.id); });
           store.set("q4-my-notes", JSON.stringify([...myNotes]));
           ta.value = ""; render();
-        }
+        } else { hint.textContent = "Couldn't save. Try again."; hint.classList.add("warn"); }
         sync();
       });
-      crow.append(hint, post); compose.append(ta, crow);
+      crow.append(hint, asWrap, post); compose.append(ta, crow);
       side.append(ownerWrap, seg, comments, compose);
       row.append(txt, side); sec.append(row);
       rows[it.id] = {row, btns, sel, comments, ta, post, sync};
